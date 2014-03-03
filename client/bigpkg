@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CWD=${CWD:=~/.bigpkg}
+CWD=${CWD:=/etc/bigpkg}
 STAGE=${STAGE:=/tmp/bigpkg}
 PREFIX=${PREFIX:=/}
 
@@ -30,7 +30,7 @@ install()
     [ -n "${package}" ] || return 1
 
     if grep -q "^${package}" $INDEX_LOCAL; then
-        # TODO: upgrad package
+        # TODO: upgrade package
         echo "error: target already installed: ${package}" >&2
 
         return 1
@@ -118,7 +118,7 @@ upgrade()
         # failed grep means package has been rm'd from upstream
         remote=$(grep "^${package}" $INDEX_REMOTE) || continue
 
-        if [ "$(echo "${remote}" | awk '{print $2}')" == "${checksum}" ]; then
+        if [ $(echo "${remote}" | awk '{print $2}') == "${checksum}" ]; then
             continue
         fi
 
@@ -231,7 +231,7 @@ touch $INDEX_LOCAL
 touch $INDEX_REMOTE
 
 if ! mkdir "${LOCKFILE}" 2>/dev/null; then
-    echo "> Already running" >&2
+    echo "error: already running" >&2
 
     exit
 fi

@@ -74,7 +74,7 @@ def client_download(request):
     fp = tempfile.NamedTemporaryFile('w+b', dir='/tmp', delete=True)
 
     with tarfile.open(fileobj=fp, mode='w:gz') as tar:
-        tar.add(request.registry.settings['client.path'], arcname='')
+        tar.add(request.registry.settings['client.path'], arcname='bigpkg')
 
     fp.seek(0)
 
@@ -110,5 +110,17 @@ def hash_file(fp, blocksize=65536):
 def hash_directory(path):
     """ Return an MD5 hash of the given ``path`` """
 
+    cmd = """
+        find '{}' -type f
+            | xargs md5sum
+            | cut -d' ' -f1
+            | sort
+            | md5sum
+            | cut -d' ' -f1
+    """.format(pipes.quote(path))
+
+    # bit elaborate.. but it makes the above more readable. #yolo
+    cmd = ' '.join((i.strip() for i in cmd.splitlines())).strip()
+
     # can't beat the shell
-    return subprocess.check_output("find '{}' -type f | xargs md5sum | cut -d' ' -f1 | sort | md5sum | cut -d' ' -f1".format(pipes.quote(path)), shell=True).strip()
+    return subprocess.check_output(cmd, shell=True).strip()
