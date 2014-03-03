@@ -13,31 +13,7 @@ from pyramid.httpexceptions import (
     HTTPForbidden,
 )
 
-@view_config(route_name='index', renderer='index.mako')
-def index(request):
-    def build_index(path):
-        index  = []
-        prefix = len(path)
-
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                path = os.path.join(root, file)
-
-                with open(path, 'rb') as fp:
-                    checksum = hash_file(fp)
-
-                index.append({
-                    'path':     path[1:][prefix:],
-                    'checksum': checksum,
-                })
-
-        return index
-
-    return {
-        'index': build_index(request.registry.settings['repo.path']),
-    }
-
-@view_config(route_name='packages', renderer='index.mako')
+@view_config(route_name='packages', renderer='packages.mako')
 def packages(request):
     def build_index(path):
         index  = []
@@ -55,7 +31,7 @@ def packages(request):
         return index
 
     return {
-        'index': build_index(request.registry.settings['repo.path']),
+        'packages': build_index(request.registry.settings['repo.path']),
     }
 
 @view_config(route_name='download')

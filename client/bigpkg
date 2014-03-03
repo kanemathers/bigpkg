@@ -1,7 +1,7 @@
 #!/bin/sh
 
-CWD=${CWD:=~/.nicepkg}
-STAGE=${STAGE:=/tmp/nicepkg}
+CWD=${CWD:=~/.bigpkg}
+STAGE=${STAGE:=/tmp/bigpkg}
 PREFIX=${PREFIX:=/}
 
 INDEX_LOCAL="${CWD}/local.db"
@@ -30,7 +30,8 @@ install()
     [ -n "${package}" ] || return 1
 
     if grep -q "^${package}" $INDEX_LOCAL; then
-        echo "error: target not found: ${package}" >&2
+        # TODO: upgrad package
+        echo "error: target already installed: ${package}" >&2
 
         return 1
     fi
@@ -48,7 +49,7 @@ install()
     # BUG: need package name written to local db so we can roll back on error
     # below. but if there's no files in the build dir, ``remove`` will error
     # and the package will be stuck (can't rm it).
-    grep $package $INDEX_REMOTE >> $INDEX_LOCAL
+    grep "^${package}" $INDEX_REMOTE >> $INDEX_LOCAL
 
     for i in $(find $build -type f); do
         filename="${i:${#build} + 1}"
@@ -142,10 +143,14 @@ package_download()
     dst="${PKG_DIR}/${package}.tar.gz"
 
     if ! grep -q "^${package}" $INDEX_REMOTE; then
+        echo "error: target not found: ${package}" >&2
+
         return 1
     fi
 
     while ! download $url $dst; do
+        echo "error: failed to fetch: ${url}. retrying..." >&2
+
         sleep 5
     done
 
@@ -186,7 +191,7 @@ download()
 
     checksum=$(echo "${headers}" | grep -i "X-Checksum" | awk '{print $2}')
 
-    if [ -z "${checksum}" ] || [ "$(hash_file "${output}")" != "${checksum}" ]; then
+    if [ -z "${checksum}" ] || [ $(hash_file "${output}") != "${checksum}" ]; then
         rm -f "${output}"
 
         return 1
