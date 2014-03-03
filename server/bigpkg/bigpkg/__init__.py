@@ -21,8 +21,11 @@ def main(global_config, **settings):
 
     config.add_static_view('static', 'static', cache_max_age=3600)
 
-    config.add_route('packages', '/packages')
-    config.add_route('download', '/packages/{package}.tar.gz')
+    config.add_route('client.download', '/client.tar.gz')
+    config.add_route('custom.sh', '/custom.sh')
+
+    config.add_route('packages.list', '/packages')
+    config.add_route('packages.download', '/packages/{package}.tar.gz')
 
     config.scan()
 
