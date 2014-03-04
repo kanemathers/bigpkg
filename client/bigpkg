@@ -44,7 +44,6 @@ import()
 
 import "index"
 import "packages"
-import "net"
 
 at_exit()
 {
