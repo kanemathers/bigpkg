@@ -23,18 +23,21 @@ HERE=$(dirname $0)
 import()
 {
     local lib=$1
+    local path
 
     [ -n "${lib}" ] || return 1
+
+    path="${HERE}/lib/${lib}.sh"
 
     if $(echo -e "${__IMPORTED}" | grep -q "^${lib}"); then
         return 1
     fi
 
-    if [ ! -r "${HERE}/lib/${lib}" ]; then
+    if [ ! -r "${path}" ]; then
         return 1
     fi
 
-    . "${HERE}/lib/${lib}"
+    source $path
 
     __IMPORTED="${__IMPORTED}\n${lib}"
 }
